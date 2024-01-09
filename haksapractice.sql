@@ -182,7 +182,63 @@ INNER JOIN professor p
 ON p.professor_code = c.professor_code
 WHERE p.professor_name='빌 게이츠';
 
-SELECT *
-FROM student_course;
+SELECT c.course_name, count(sc.id) as 'cnt'
+FROM course c
+INNER JOIN student_course sc
+ON c.course_code = sc.course_code
+GROUP BY c.course_name
+HAVING cnt >= 2
+ORDER BY c.course_name ASC;
 
+SELECT s.student_name
+FROM student s
+INNER JOIN student_course sc
+ON s.student_id = sc.student_id
+WHERE sc.student_id = (
+	SELECT sc.student_id
+	FROM course c
+	INNER JOIN student_course sc
+	ON c.course_code = sc.course_code
+	WHERE c.professor_code = (
+		SELECT p.professor_code
+		FROM professor p
+		INNER JOIN course c
+		ON p.professor_code = c.professor_code
+		WHERE p.professor_name = '빌 게이츠'));
+        
+SELECT d.department_name, A.student_name
+FROM department d
+INNER JOIN (
+	SELECT s.department_code, s.student_name
+	FROM student s
+	WHERE s.student_id IN (
+		SELECT sc.student_id
+		FROM course c
+		INNER JOIN student_course sc
+		ON c.course_code = sc.course_code
+		WHERE c.course_code = (
+			SELECT c.course_code
+			FROM course c
+			INNER JOIN student_course sc
+			ON c.course_code = sc.course_code
+			WHERE c.professor_code = (
+				SELECT p.professor_code
+				FROM professor p
+				INNER JOIN course c
+				ON p.professor_code = c.professor_code
+				WHERE p.professor_name = '스티브 잡스')
+				LIMIT 1)))A
+ON A.department_code = d.department_code; 
 
+SELECT s.student_name
+FROM student s
+WHERE s.student_id IN(
+	SELECT sc.student_id
+	FROM student_course sc
+	WHERE sc.course_code IN(
+		SELECT sc.course_code
+		FROM student_course sc
+		WHERE sc.student_id IN (
+			SELECT s.student_id
+			FROM student s
+			WHERE s.student_name = '사길동')));
