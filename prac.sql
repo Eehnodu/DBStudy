@@ -149,3 +149,41 @@ INNER JOIN product p
 ON cp.product_number = p.product_number
 WHERE cp.customer_id = 'CUST005';
 
+ -- Q. 구매이력이 있는 customer_id 출력
+SELECT DISTINCT customer_id FROM customer_product;
+
+SELECT manufacturer, CHAR_LENGTH(manufacturer) FROM product;
+
+SELECT * FROM customer WHERE age is NULL;
+
+-- Q. 제품을 2개 이상 제조한 제조업체별로 제품의 개수와 제품중 가장 비싼 단가
+SELECT p.manufacturer, COUNT(p.product_name) as 'cnt', MAX(p.price) as 'price'
+FROM product p
+GROUP BY p.manufacturer
+HAVING cnt >= 2;
+
+-- Q. 제품 C를 생산한 제조업체가 만든 제품들의 제품명과 가격을 출력
+SELECT p.product_name, p.price
+FROM product p
+WHERE p.manufacturer = (
+	SELECT p.manufacturer
+	FROM product p
+	WHERE p.product_name = '제품 c');
+
+-- CUST005고객이 주문한 제품의 제품명과 제조업체를 출력하시오
+SELECT p.product_name, p.manufacturer
+FROM product p
+WHERE p.product_number IN (
+	SELECT cp.product_number
+	FROM customer_product cp
+	WHERE cp.customer_id = 'CUST005');
+    
+SELECT cp.customer_id, p.product_name, p.manufacturer
+FROM product p
+INNER JOIN customer_product cp
+ON p.product_number = cp.product_number
+WHERE cp.customer_id = 'CUST005';
+
+-- Q. 제품의 가격을 모두 10% 인상해보자
+UPDATE product SET price = price * 1.1;
+SELECT * FROM product;
